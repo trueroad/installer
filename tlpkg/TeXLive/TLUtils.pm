@@ -3699,8 +3699,8 @@ sub _create_config_files {
   my $root = $tlpdb->root;
   my @lines = ();
   my $usermode = $tlpdb->setting( "usertree" );
-  if (-r "$root/$headfile") {
-    open (INFILE, "<$root/$headfile")
+  if (-r _encode_locale_fs("$root/$headfile")) {
+    open (INFILE, _encode_locale_fs("<$root/$headfile"))
       || die "open($root/$headfile) failed, but -r ok: $!";
     @lines = <INFILE>;
     close (INFILE);
@@ -3711,11 +3711,11 @@ sub _create_config_files {
            . "$root/$headfile\n")
   }
   push @lines, @$tlpdblinesref;
-  if (defined($localconf) && -r $localconf) {
+  if (defined($localconf) && -r _encode_locale_fs($localconf)) {
     #
     # this should be done more intelligently, but for now only add those
     # lines without any duplication check ...
-    open (FOO, "<$localconf")
+    open (FOO, _encode_locale_fs("<$localconf"))
       || die "strange, -r ok but cannot open $localconf: $!";
     my @tmp = <FOO>;
     close (FOO);
@@ -3724,11 +3724,11 @@ sub _create_config_files {
   if (@postlines) {
     push @lines, @postlines;
   }
-  if ($usermode && -e $dest) {
+  if ($usermode && -e _encode_locale_fs($dest)) {
     tlwarn("Updating $dest, backup copy in $dest.backup\n");
     copy("-f", $dest, "$dest.backup");
   }
-  open(OUTFILE,">$dest")
+  open(OUTFILE,_encode_locale_fs(">$dest"))
     or die("Cannot open $dest for writing: $!");
 
   if (!$keepfirstline) {
