@@ -1269,7 +1269,7 @@ sub mkdirhier {
   my $ret = 1;
   my $reterror;
 
-  if (-d "$tree") {
+  if (-d _encode_locale_fs("$tree")) {
     $ret = 1;
   } else {
     my $subdir = "";
@@ -1280,15 +1280,15 @@ sub mkdirhier {
     my @dirs = split (/[\/\\]/, $tree);
     for my $dir (@dirs) {
       $subdir .= "$dir/";
-      if (! -d $subdir) {
+      if (! -d _encode_locale_fs($subdir)) {
         if (defined $mode) {
-          if (! mkdir ($subdir, $mode)) {
+          if (! mkdir (_encode_locale_fs($subdir), $mode)) {
             $ret = 0;
             $reterror = "mkdir($subdir,$mode) failed: $!";
             last;
           }
         } else {
-          if (! mkdir ($subdir)) {
+          if (! mkdir (_encode_locale_fs($subdir))) {
             $ret = 0;
             $reterror = "mkdir($subdir) failed for tree $tree: $!";
             last;
