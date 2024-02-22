@@ -105,6 +105,68 @@ use TeXLive::TLWinGoo;
 
 use Cwd 'abs_path';
 
+use Encode;
+
+sub _encode_locale {
+  my $str = shift;
+
+  my $enc = Encode::find_encoding('locale');
+  if ($enc) {
+    return $enc->encode($str);
+  }
+  return $str;
+}
+
+sub _encode_locale_fs {
+  my $str = shift;
+
+  my $enc = Encode::find_encoding('locale_fs');
+  if ($enc) {
+    return $enc->encode($str);
+  }
+  return $str;
+}
+
+sub _encode_console_in {
+  my $str = shift;
+
+  my $enc = Encode::find_encoding('console_in');
+  if ($enc) {
+    return $enc->encode($str);
+  }
+  return $str;
+}
+
+sub _decode_locale {
+  my $str = shift;
+
+  my $enc = Encode::find_encoding('locale');
+  if ($enc) {
+    return $enc->decode($str);
+  }
+  return $str;
+}
+
+sub _decode_locale_fs {
+  my $str = shift;
+
+  my $enc = Encode::find_encoding('locale_fs');
+  if ($enc) {
+    return $enc->decode($str);
+  }
+  return $str;
+}
+
+sub _decode_console_out {
+  my $str = shift;
+
+  my $enc = Encode::find_encoding('console_out');
+  if ($enc) {
+    return $enc->decode($str);
+  }
+  return $str;
+}
+
 my $_listdir;
 
 =pod
