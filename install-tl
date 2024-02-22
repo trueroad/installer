@@ -1474,7 +1474,7 @@ sub do_path_adjustments {
 
 # we have to adjust the texmf.cnf file to the paths set in the configuration!
 sub do_texmf_cnf {
-  open(TMF,"<$vars{'TEXDIR'}/texmf-dist/web2c/texmf.cnf")
+  open(TMF,Encode::encode('locale_fs', "<$vars{'TEXDIR'}/texmf-dist/web2c/texmf.cnf"))
       or die "$vars{'TEXDIR'}/texmf-dist/web2c/texmf.cnf not found: $!";
   my @texmfcnflines = <TMF>;
   close(TMF);
@@ -1529,8 +1529,8 @@ sub do_texmf_cnf {
   my ($TMF, $TMFLUA);
   # we want to write only changes to texmf.cnf
   # even for in_place installation
-  $TMF = ">$vars{'TEXDIR'}/texmf.cnf";
-  open(TMF, $TMF) || die "open($TMF) failed: $!";
+  $TMF = "$vars{'TEXDIR'}/texmf.cnf";
+  open(TMF, '>:encoding(locale)', Encode::encode('locale_fs', $TMF)) || die "open($TMF) failed: $!";
   print TMF <<EOF;
 % (Public domain.)
 % This texmf.cnf file should contain only your personal changes from the
@@ -1587,8 +1587,8 @@ EOF
 
   close(TMF) || warn "close($TMF) failed: $!";
 
-  $TMFLUA = ">$vars{'TEXDIR'}/texmfcnf.lua";
-  open(TMFLUA, $TMFLUA) || die "open($TMFLUA) failed: $!";
+  $TMFLUA = "$vars{'TEXDIR'}/texmfcnf.lua";
+  open(TMFLUA, '>:encoding(locale)', Encode::encode('locale_fs', $TMFLUA)) || die "open($TMFLUA) failed: $!";
     print TMFLUA <<EOF;
 -- (Public domain.)
 -- This texmfcnf.lua file should contain only your personal changes from the
