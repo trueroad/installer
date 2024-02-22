@@ -806,7 +806,11 @@ C<system(@args)>; C<tlwarn> if unsuccessful and return the exit status.
 sub wsystem {
   my ($msg,@args) = @_;
   info("$msg @args ...\n");
-  my $retval = system(@args);
+  my @args_raw;
+  foreach my $arg (@args) {
+    push(@args_raw, _encode_locale($arg));
+  }
+  my $retval = system(@args_raw);
   if ($retval != 0) {
     $retval /= 256 if $retval > 0;
     tlwarn("$0:  command failed (status $retval): @args: $!\n");
