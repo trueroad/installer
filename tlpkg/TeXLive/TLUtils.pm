@@ -3493,7 +3493,7 @@ unless C<TEXMFLOCAL> already exists.
 sub make_local_skeleton {
   my ($prefix) = @_;
 
-  return if (-d $prefix);
+  return if (-d _encode_locale_fs($prefix));
 
   mkdirhier "$prefix/bibtex/bib/local";
   mkdirhier "$prefix/bibtex/bst/local";
