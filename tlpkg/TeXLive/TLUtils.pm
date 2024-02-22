@@ -1558,44 +1558,47 @@ sub copy {
     $outfile = "$destdir/$filename";
   }
 
-  if (! -d $destdir) {
+  if (! -d _encode_locale_fs($destdir)) {
     my ($ret,$err) = mkdirhier ($destdir);
     die "mkdirhier($destdir) failed: $err\n" if ! $ret;
   }
 
   # if we should dereference, change $infile to refer to the link target.
-  if (-l $infile && $dereference) {
-    my $linktarget = readlink($infile);
+  if (-l _encode_locale_fs($infile) && $dereference) {
+    my $linktarget_raw = readlink(_encode_locale_fs($infile));
+    my $linktarget = _decode_locale_fs($linktarget_raw);
     # The symlink target should always be relative, and we need to
     # prepend the directory containing the link in that case.
     # (Although it should never happen, if the symlink target happens
     # to already be absolute, do not prepend.)
     if ($linktarget !~ m,^/,) {
-      $infile = Cwd::abs_path(dirname($infile)) . "/$linktarget";
+      my $infile_raw = Cwd::abs_path(_encode_locale_fs(dirname($infile))) . "/$linktarget";
+      $infile = _decode_locale_fs($infile_raw);
     }
     ddebug("TLUtils::copy: dereferencing symlink $infile -> $linktarget");
   }
 
-  if (-l $infile) {
-    my $linktarget = readlink($infile);
+  if (-l _encode_locale_fs($infile)) {
+    my $linktarget_raw = readlink(_encode_locale_fs($infile));
+    my $linktarget = _decode_locale_fs($linktarget_raw);
     my $dest = "$destdir/$filename";
     ddebug("TLUtils::copy: doing symlink($linktarget,$dest)"
           . " [from readlink($infile)]\n");
-    symlink($linktarget, $dest) || die "symlink($linktarget,$dest) failed: $!";
+    symlink($linktarget_raw, _encode_locale_fs($dest)) || die "symlink($linktarget,$dest) failed: $!";
   } else {
-    if (! open (IN, $infile)) {
+    if (! open (IN, _encode_locale_fs($infile))) {
       warn "open($infile) failed, not copying: $!";
       return;
     }
     binmode IN;
 
-    $mode = (-x $infile) ? oct("0777") : oct("0666");
+    $mode = (-x _encode_locale_fs($infile)) ? oct("0777") : oct("0666");
     $mode &= ~umask;
 
-    open (OUT, ">$outfile") || die "open(>$outfile) failed: $!";
+    open (OUT, _encode_locale_fs(">$outfile")) || die "open(>$outfile) failed: $!";
     binmode OUT;
 
-    chmod ($mode, $outfile) || warn "chmod($mode,$outfile) failed: $!";
+    chmod ($mode, _encode_locale_fs($outfile)) || warn "chmod($mode,$outfile) failed: $!";
 
     while (my $read = sysread (IN, $buffer, $blocksize)) {
       die "read($infile) failed: $!" unless defined $read;
@@ -1609,9 +1612,9 @@ sub copy {
     }
     close (OUT) || warn "close($outfile) failed: $!";
     close (IN) || warn "close($infile) failed: $!";;
-    @stat = lstat ($infile);
+    @stat = lstat (_encode_locale_fs($infile));
     die "lstat($infile) failed: $!" if ! @stat;
-    utime ($stat[8], $stat[9], $outfile);
+    utime ($stat[8], $stat[9], _encode_locale_fs($outfile));
   }
 }
 
