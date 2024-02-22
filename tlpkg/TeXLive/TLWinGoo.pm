@@ -1104,10 +1104,10 @@ sub add_shortcut {
   my ($dir, $name, $icon, $prog, $args, $batgui) = @_;
 
   # make sure $dir exists
-  if ((not -e $dir) and (not -d $dir)) {
+  if ((not -e _encode_locale_fs($dir)) and (not -d _encode_locale_fs($dir))) {
     mkdirhier($dir);
   }
-  if (not -d $dir) {
+  if (not -d _encode_locale_fs($dir)) {
     tlwarn ("Failed to create directory $dir for shortcut\n");
     return;
   }
@@ -1115,14 +1115,15 @@ sub add_shortcut {
   debug "Creating shortcut $name for $prog in $dir\n";
   my ($shc, $shpath, $shfile);
   $shc = new Win32::Shortcut();
-  $shc->{'IconLocation'} = $icon if -f $icon;
-  $shc->{'Path'} = $prog;
-  $shc->{'Arguments'} = $args;
+  $shc->{'IconLocation'} = $icon if -f _encode_locale($icon);
+  $shc->{'Path'} = _encode_locale($prog);
+  $shc->{'Arguments'} = _encode_locale($args);
   $shc->{'ShowCmd'} = $batgui ? SW_SHOWMINNOACTIVE : SW_SHOWNORMAL;
   $shc->{'WorkingDirectory'} = '%USERPROFILE%';
   $shfile = $dir;
   $shfile =~ s!\\!/!g;
   $shfile .= ($shfile =~ m!/$! ? '' : '/') . $name . '.lnk';
+  $shfile = _encode_locale($shfile);
   $shc->Save($shfile);
 }
 
