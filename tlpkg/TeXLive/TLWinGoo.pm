@@ -466,8 +466,8 @@ sub unsetenv_reg {
     if ($mode ne "user" and $mode ne "system" and $mode ne "default");
   die "unsetenv_reg: mode 'system' only available for admin"
     if ($mode eq "system" and !$is_admin);
-  delete get_user_env()->{'/'.$env_var} if $mode ne "system";
-  delete get_system_env()->{'/'.$env_var} if ($mode ne "user" and $is_admin);
+  delete get_user_env()->{'/'._encode_locale($env_var)} if $mode ne "system";
+  delete get_system_env()->{'/'._encode_locale($env_var)} if ($mode ne "user" and $is_admin);
 }
 
 =pod
