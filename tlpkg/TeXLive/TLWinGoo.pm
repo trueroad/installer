@@ -438,14 +438,14 @@ sub setenv_reg {
   if ($mode ne "system") {
     $env = get_user_env();
     $env->ArrayValues(1);
-    $env->{'/'.$env_var} =
-       [ $env_data, ($env_data =~ /%/) ? REG_EXPAND_SZ : REG_SZ ];
+    $env->{'/'._encode_locale($env_var)} =
+       [ _encode_locale($env_data), ($env_data =~ /%/) ? REG_EXPAND_SZ : REG_SZ ];
   }
   if ($mode ne "user" and $is_admin) {
     $env = get_system_env();
     $env->ArrayValues(1);
-    $env->{'/'.$env_var} =
-       [ $env_data, ($env_data =~ /%/) ? REG_EXPAND_SZ : REG_SZ ];
+    $env->{'/'._encode_locale($env_var)} =
+       [ _encode_locale($env_data), ($env_data =~ /%/) ? REG_EXPAND_SZ : REG_SZ ];
   }
 }
 
