@@ -829,10 +829,14 @@ die if unsuccessful.
 sub xsystem {
   my (@args) = @_;
   ddebug("running system(@args)\n");
-  my $retval = system(@args);
+  my @args_raw;
+  foreach my $arg (@args) {
+    push(@args_raw, _encode_locale($arg));
+  }
+  my $retval = system(@args_raw);
   if ($retval != 0) {
     $retval /= 256 if $retval > 0;
-    my $pwd = cwd ();
+    my $pwd = _decode_locale_fs(cwd ());
     die "$0: system(@args) failed in $pwd, status $retval";
   }
   return $retval;
