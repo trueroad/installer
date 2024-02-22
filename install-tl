@@ -2714,7 +2714,8 @@ sub flushlog {
     my $fh;
     my $logfile = "install-tl.log";
     if (open (LOG, ">$logfile")) {
-      my $pwd = Cwd::getcwd();
+      my $pwd_raw = Cwd::getcwd();
+      my $pwd = Encode::decode('locale_fs', $pwd_raw);
       $logfile = "$pwd/$logfile";
       print "$0: Writing log in current directory: $logfile\n";
       $fh = \*LOG;
