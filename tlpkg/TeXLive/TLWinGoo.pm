@@ -1200,15 +1200,19 @@ sub create_uninstaller {
   my $td = $td_fw;
   $td =~ s!/!\\!g;
 
-  my $tdmain = `"$td\\bin\\windows\\kpsewhich" -var-value=TEXMFMAIN`;
+  my $td_raw = _encode_locale_fs($td);
+
+  my $tdmain_raw = `"$td_raw\\bin\\windows\\kpsewhich" -var-value=TEXMFMAIN`;
+  my $tdmain = _decode_locale_fs($tdmain_raw);
   $tdmain =~ s!/!\\!g;
   chomp $tdmain;
 
   my $uninst_fw = "$td_fw/tlpkg/installer";
   my $uninst_dir = $uninst_fw;
   $uninst_dir =~ s!/!\\!g;
+  my $uninst_dir_raw = _encode_locale_fs($uninst_dir);
   mkdirhier("$uninst_fw"); # wasn't this done yet?
-  if (! (open UNINST, ">", "$uninst_fw/uninst.bat")) {
+  if (! (open UNINST, ">:encoding(locale)", _encode_locale_fs("$uninst_fw/uninst.bat"))) {
     tlwarn("Failed to create uninstaller\n");
     return 0;
   }
@@ -1251,7 +1255,7 @@ UNEND
 
   # We could simply delete everything under the root at one go,
   # but this might be catastrophic if TL doesn't have its own root.
-  if (! (open UNINST2, ">$uninst_fw/uninst2.bat")) {
+  if (! (open UNINST2, '>:encoding(locale)', _encode_locale_fs("$uninst_fw/uninst2.bat"))) {
     tlwarn("Failed to complete creating uninstaller\n");
     return 0;
   }
@@ -1275,7 +1279,9 @@ del /q \"$td\\release-texlive.txt\"
 UNEND2
 ;
   for my $d ('TEXMFSYSVAR', 'TEXMFSYSCONFIG') {
-    my $kd = `"$td\\bin\\windows\\kpsewhich" -var-value=$d`;
+    my $cmd = "\"$td\\bin\\windows\\kpsewhich\" -var-value=$d";
+    my $cmd_raw = _encode_locale($cmd);
+    my $kd = _decode_console_out(`$cmd_raw`);
     chomp $kd;
     print UNINST2 "rmdir /s /q \"", $kd, "\"\r\n";
   }
@@ -1316,7 +1322,7 @@ UNEND3
         "uninstall/TeXLive$::TeXLive::TLConfig::ReleaseYear/");
       if ($k) {
         $k->{"/DisplayName"} = "TeX Live $::TeXLive::TLConfig::ReleaseYear";
-        $k->{"/UninstallString"} = "\"$td\\tlpkg\\installer\\uninst.bat\"";
+        $k->{"/UninstallString"} = "\"$td_raw\\tlpkg\\installer\\uninst.bat\"";
         $k->{'/DisplayVersion'} = $::TeXLive::TLConfig::ReleaseYear;
         $k->{'/Publisher'} = 'TeX Live';
         $k->{'/URLInfoAbout'} = "http://www.tug.org/texlive";
