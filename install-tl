@@ -1224,21 +1224,22 @@ operations might be disturbed.\n\n";
   my $progext = (wndws())? '.exe' : '';
 
   debug("Prepending $plat_bindir to PATH\n");
-  $ENV{'PATH'} = $plat_bindir . $pathsep . $ENV{'PATH'};
+  my $addpath = $plat_bindir . $pathsep;
 
   if (wndws()) {
     debug("Prepending $perl_bindir to PATH\n");
-    $ENV{'PATH'} = "$perl_bindir" . "$pathsep" . "$ENV{'PATH'}";
-    $ENV{'PATH'} =~ s!/!\\!g;
+    $addpath = $perl_bindir . $pathsep . $addpath;
+    $addpath =~ s!/!\\!g;
   }
+  $ENV{'PATH'} = Encode::encode('locale', $addpath) . $ENV{'PATH'};
 
   debug("\nNew PATH is:\n");
-  foreach my $dir (split $pathsep, $ENV{'PATH'}) {
+  foreach my $dir (split $pathsep, Encode::decode('locale', $ENV{'PATH'})) {
     debug("  $dir\n");
   }
   debug("\n");
   if (wndws()) {
-    $ENV{'PERL5LIB'} = $perl_libdir;
+    $ENV{'PERL5LIB'} = Encode::encode('locale', $perl_libdir);
   }
 
   #
