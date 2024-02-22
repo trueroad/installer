@@ -1372,24 +1372,29 @@ later.  It writes a log message what it does and why.
 sub maybe_make_ro {
   my $dir = shift;
   debug ("Calling maybe_make_ro on $dir\n");
-  tldie "$dir not a directory\n" unless -d $dir;
+  my $dir_raw = _encode_locale_fs($dir);
+  tldie "$dir not a directory\n" unless -d $dir_raw;
   if (!admin()) {
     log "Not an admin install; not making read-only\n";
     return 1;
   }
 
-  $dir = Cwd::abs_path($dir);
+  $dir_raw = Cwd::abs_path($dir_raw);
+  $dir = _decode_locale_fs($dir_raw);
 
   # GetDriveType: check that $dir is on local fixed disk
   # need to feed GetDriveType the drive root
-  my ($volume,$dirs,$file) = File::Spec->splitpath($dir);
+  my ($volume_raw,$dirs_raw,$file_raw) = File::Spec->splitpath($dir_raw);
+  my $volume = _decode_locale_fs($volume_raw);
+  my $dirs = _decode_locale_fs($dirs_raw);
+  my $file = _decode_locale_fs($file_raw);
   debug "Split path: | $volume | $dirs | $file\n";
   # GetDriveType won't handle UNC paths so handle this case separately
   if ($volume =~ m!^[\\/][\\/]!) {
     log "$dir on UNC network path; not making read-only\n";
     return 1;
   }
-  my $dt = Win32API::File::GetDriveType($volume);
+  my $dt = Win32API::File::GetDriveType($volume_raw);
   debug "Drive type $dt\n";
   if ($dt ne Win32API::File::DRIVE_FIXED) {
     log "Not a local fixed drive; not making read-only\n";
@@ -1398,10 +1403,12 @@ sub maybe_make_ro {
 
   # FsType: test for NTFS, or, better, check whether ACLs are supported
   # FsType needs to be called for the current directory
-  my $curdir = Cwd::getcwd();
+  my $curdir_raw = Cwd::getcwd();
+  my $curdir = _decode_locale_fs($curdir_raw);
   debug "Current directory $curdir\n";
-  chdir $dir;
-  my $newdir = Cwd::getcwd();
+  chdir $dir_raw;
+  my $newdir_raw = Cwd::getcwd();
+  my $newdir = _decode_locale_fs($newdir_raw);
   debug "New current directory $newdir\n";
   tldie "Cannot cd to $dir, current dir is $newdir\n" unless
     lc($newdir) eq lc($dir);
@@ -1409,7 +1416,7 @@ sub maybe_make_ro {
   if (!($flags & 0x00000008)) {
     log "$dir does not supports ACLs; not making read-only\n";
     # go back to original directory
-    chdir $curdir;
+    chdir $curdir_raw;
     return 1;
   }
 
@@ -1432,7 +1439,7 @@ sub maybe_make_ro {
   log "Making read-only\n"._decode_console_out(`$cmd`)."\n";
 
   # go back to original directory
-  chdir $curdir;
+  chdir $curdir_raw;
   return 1;
 }
 
