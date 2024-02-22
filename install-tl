@@ -2752,7 +2752,7 @@ sub do_cleanup {
   if (!defined($::LOGFILE)) {
     # no -logfile option; nothing written yet
     $::LOGFILENAME = "$vars{'TEXDIR'}/install-tl.log";
-    if (open(LOGF,">:utf8", $::LOGFILENAME)) {
+    if (open(LOGF,">:utf8", Encode::encode('locale_fs', $::LOGFILENAME))) {
       $::LOGFILE = \*LOGF;
       foreach my $line(@::LOGLINES) {
         print $::LOGFILE "$line";
@@ -2765,10 +2765,10 @@ sub do_cleanup {
 
   # Close log file if present
   close($::LOGFILE) if (defined($::LOGFILE));
-  if (!defined($::LOGFILENAME) and (-e "$vars{'TEXDIR'}/install-tl.log")) {
+  if (!defined($::LOGFILENAME) and (-e Encode::encode('locale_fs', "$vars{'TEXDIR'}/install-tl.log"))) {
     $::LOGFILENAME = "$vars{'TEXDIR'}/install-tl.log";
   }
-  if (!(defined($::LOGFILENAME)) or !(-e $::LOGFILENAME)) {
+  if (!(defined($::LOGFILENAME)) or !(-e Encode::encode('locale_fs', $::LOGFILENAME))) {
     $::LOGFILENAME = "";
   }
 } # do_cleanup
