@@ -2886,21 +2886,22 @@ sub untar {
   # so fall back on chdir in Perl.
   #
   debug("TLUtils::untar: unpacking $tarfile in $targetdir\n");
-  my $cwd = cwd();
-  chdir($targetdir) || die "chdir($targetdir) failed: $!";
+  my $cwd_raw = cwd();
+  my $cwd = _decode_locale_fs($cwd_raw);
+  chdir(_encode_locale_fs($targetdir)) || die "chdir($targetdir) failed: $!";
 
   # on w32 don't extract file modified time, because AV soft can open
   # files in the mean time causing time stamp modification to fail
   my $taropt = wndws() ? "xmf" : "xf";
-  if (system($tar, $taropt, $tarfile) != 0) {
+  if (system($tar, $taropt, _encode_locale_fs($tarfile)) != 0) {
     tlwarn("TLUtils::untar: $tar $taropt $tarfile failed (in $targetdir)\n");
     $ret = 0;
   } else {
     $ret = 1;
   }
-  unlink($tarfile) if $remove_tarfile;
+  unlink(_encode_locale_fs($tarfile)) if $remove_tarfile;
 
-  chdir($cwd) || die "chdir($cwd) failed: $!";
+  chdir($cwd_raw) || die "chdir($cwd) failed: $!";
   return $ret;
 }
 
