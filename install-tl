@@ -2139,7 +2139,7 @@ sub create_profile {
   if (ref($profilepath)) {
     $fh = $profilepath;
   } else {
-    open PROFILE, ">$profilepath";
+    open PROFILE, '>:encoding(locale)', Encode::encode('locale_fs', "$profilepath");
     $fh = \*PROFILE;
   }
   #
