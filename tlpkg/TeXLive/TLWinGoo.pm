@@ -142,6 +142,68 @@ BEGIN {
   }
 } # end BEGIN
 
+use Encode;
+
+sub _encode_locale {
+  my $str = shift;
+
+  my $enc = Encode::find_encoding('locale');
+  if ($enc) {
+    return $enc->encode($str);
+  }
+  return $str;
+}
+
+sub _encode_locale_fs {
+  my $str = shift;
+
+  my $enc = Encode::find_encoding('locale_fs');
+  if ($enc) {
+    return $enc->encode($str);
+  }
+  return $str;
+}
+
+sub _encode_console_in {
+  my $str = shift;
+
+  my $enc = Encode::find_encoding('console_in');
+  if ($enc) {
+    return $enc->encode($str);
+  }
+  return $str;
+}
+
+sub _decode_locale {
+  my $str = shift;
+
+  my $enc = Encode::find_encoding('locale');
+  if ($enc) {
+    return $enc->decode($str);
+  }
+  return $str;
+}
+
+sub _decode_locale_fs {
+  my $str = shift;
+
+  my $enc = Encode::find_encoding('locale_fs');
+  if ($enc) {
+    return $enc->decode($str);
+  }
+  return $str;
+}
+
+sub _decode_console_out {
+  my $str = shift;
+
+  my $enc = Encode::find_encoding('console_out');
+  if ($enc) {
+    return $enc->decode($str);
+  }
+  return $str;
+}
+
 use TeXLive::TLConfig;
 use TeXLive::TLUtils;
 TeXLive::TLUtils->import( qw( mkdirhier ) );
@@ -1367,7 +1429,7 @@ sub maybe_make_ro {
   my $cmd = 'cmd /c "icacls . /reset && icacls . /inheritance:r'.
     ' /grant:r *S-1-5-32-544:(OI)(CI)F'.
     ' /grant:r *S-1-5-11:(OI)(CI)RX /grant:r *S-1-5-32-545:(OI)(CI)RX"';
-  log "Making read-only\n".Encode::decode(console_out,`$cmd`)."\n";
+  log "Making read-only\n"._decode_console_out(`$cmd`)."\n";
 
   # go back to original directory
   chdir $curdir;
