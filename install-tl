@@ -1060,7 +1060,7 @@ sub do_installation {
   $vars{'TEXDIR'} =~ s!/$!!;
   # do the actual installation
   make_var_skeleton "$vars{'TEXMFSYSVAR'}";
-  my $oldlocal = -d $vars{'TEXMFLOCAL'};
+  my $oldlocal = -d Encode::encode('locale_fs', $vars{'TEXMFLOCAL'});
   make_local_skeleton "$vars{'TEXMFLOCAL'}";
   mkdirhier "$vars{'TEXMFSYSCONFIG'}";
   if (wndws()) {
