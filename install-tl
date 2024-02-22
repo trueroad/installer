@@ -1250,8 +1250,8 @@ operations might be disturbed.\n\n";
   my $usedtlpdb = $opt_in_place ? $tlpdb : $localtlpdb;
 
   if (wndws()) {
-    debug("Actual environment:\n" . `set` ."\n\n");
-    debug("Effective TEXMFCNF: " . `kpsewhich -expand-path=\$TEXMFCNF` ."\n");
+    debug("Actual environment:\n" . Encode::decode('console_out', `set`) ."\n\n");
+    debug("Effective TEXMFCNF: " . Encode::decode('console_out', `kpsewhich -expand-path=\$TEXMFCNF`) ."\n");
   }
 
   # Step 4: run the programs
@@ -1272,7 +1272,7 @@ operations might be disturbed.\n\n";
     "$TEXDIR/texmf-dist/web2c/fmtutil.cnf");
 
   # warn if fmtutil-local.cnf is present
-  if (-r "$TEXMFLOCAL/web2c/fmtutil-local.cnf") {
+  if (-r Encode::encode('locale_fs', "$TEXMFLOCAL/web2c/fmtutil-local.cnf")) {
     tlwarn("Old configuration file $TEXMFLOCAL/web2c/fmtutil-local.cnf found.\n");
     tlwarn("fmtutil now reads *all* fmtutil.cnf files, so probably the easiest way\nis to rename the above file to $TEXMFLOCAL/web2c/fmtutil.cnf\n");
   }
@@ -1300,7 +1300,7 @@ operations might be disturbed.\n\n";
                      $TEXMFSYSVAR, $TEXMFSYSCONFIG, "$TEXDIR/texmf-dist")
   && exit(1);
 
-  if (-x "$plat_bindir/updmap-sys$progext") {
+  if (-x Encode::encode('locale_fs', "$plat_bindir/updmap-sys$progext")) {
     $errcount += run_postinst_cmd("updmap-sys --nohash");
   } else {
     info("not running updmap-sys (not installed)\n");
