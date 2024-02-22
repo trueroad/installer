@@ -1945,7 +1945,7 @@ sub _post_install_pkg {
   mkdirhier($tlpod);
   my $count = 0;
   my $tlpobj_file = ">$tlpod/" . $tlpobj->name . ".tlpobj";
-  until (open(TMP, $tlpobj_file)) {
+  until (open(TMP, _encode_locale_fs($tlpobj_file))) {
     # The open might fail for no good reason on Windows.
     # Try again for a while, but not forever.
     if ($count++ == 100) { die "$0: open($tlpobj_file) failed: $!"; }
