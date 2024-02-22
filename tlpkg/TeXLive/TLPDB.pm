@@ -655,14 +655,14 @@ sub save {
   my $path = $self->location;
   mkdirhier(dirname($path));
   my $tmppath = "$path.tmp";
-  open(FOO, ">$tmppath") || die "$0: open(>$tmppath) failed: $!";
+  open(FOO, _encode_locale_fs(">$tmppath")) || die "$0: open(>$tmppath) failed: $!";
   $self->writeout(\*FOO);
   close(FOO);
   # on Windows the renaming sometimes fails, try to copy and unlink the
   # .tmp file. This we do for all archs, cannot hurt.
   # if we managed that one, we move it over
   TeXLive::TLUtils::copy ("-f", $tmppath, $path);
-  unlink ($tmppath) or tlwarn ("TLPDB: cannot unlink $tmppath: $!\n");
+  unlink (_encode_locale_fs($tmppath)) or tlwarn ("TLPDB: cannot unlink $tmppath: $!\n");
 }
 
 =pod
